@@ -2,3 +2,4 @@ django
 Pillow
 mysqlclient
 django-crispy-forms
+boto3
