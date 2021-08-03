@@ -10,7 +10,7 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/2.2/ref/settings/
 """
 
-import os
+import os, boto3
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -28,8 +28,14 @@ SECRET_KEY = 'esp5_$&sjrwso(!8q(vy5l335lzo8*zs5w-r=e8ger@w!j48vy'
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
+public_ip_dns = os.getenv('PUBLIC_DNS', '')
 
-ALLOWED_HOSTS = []
+
+print("*** Public DNS:" + public_ip_dns)
+
+
+ALLOWED_HOSTS = [public_ip_dns]
+
 
 
 # Application definition
@@ -81,15 +87,34 @@ WSGI_APPLICATION = 'app.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/2.2/ref/settings/#databases
 
+ssm = boto3.client('ssm', region_name='us-east-1')
+
+
+db_host = ssm.get_parameter(Name='db-host')['Parameter']['Value']
+
+db_username = ssm.get_parameter(Name='db-username')['Parameter']['Value']
+
+db_password = ssm.get_parameter(Name='db-password')['Parameter']['Value']
+
+
 DATABASES = {
+
     'default': {
+
         'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'raman',
-        'USER': 'root',
-        'PASSWORD': 'vina68',
-        'HOST': 'localhost',
+
+        'NAME': 'app',
+
+        'USER': db_username,
+
+        'PASSWORD': db_password,
+
+        'HOST': db_host,
+
         'PORT': '3306',
+
     }
+
 }
 
 
